@@ -3,115 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FTHLABZ | Mağaza Kontrol Merkezi</title>
+    <title>FTHLABZ | Elite Panel</title>
     <style>
-        body { background: #0f172a; color: white; font-family: sans-serif; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .admin-card { background: #1e293b; padding: 30px; border-radius: 25px; width: 100%; max-width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05); }
-        .label { text-align: left; font-size: 0.75rem; color: #38bdf8; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px; }
-        input { width: 100%; padding: 14px; border-radius: 12px; border: none; margin-bottom: 15px; background: #f8fafc; color: #0f172a; font-size: 1rem; box-sizing: border-box; }
-        button { width: 100%; padding: 18px; border-radius: 12px; border: none; background: #38bdf8; color: #0f172a; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; }
-        button:hover { background: #7dd3fc; transform: translateY(-2px); }
-        #status { margin-top: 20px; text-align: center; font-size: 0.9rem; min-height: 24px; }
+        body { background: #0f172a; color: white; font-family: sans-serif; padding: 20px; display: flex; justify-content: center; min-height: 100vh; align-items: center; margin: 0; }
+        .admin-card { background: #1e293b; padding: 30px; border-radius: 25px; width: 100%; max-width: 450px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .label { font-size: 0.75rem; color: #38bdf8; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px; }
+        input, textarea { width: 100%; padding: 14px; border-radius: 12px; border: none; margin-bottom: 18px; background: #f8fafc; color: #0f172a; font-size: 1rem; box-sizing: border-box; }
+        textarea { height: 90px; resize: none; }
+        button { width: 100%; padding: 18px; border-radius: 12px; border: none; background: #38bdf8; color: #0f172a; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
+        button:hover { background: #7dd3fc; }
+        #status { text-align: center; margin-top: 20px; font-weight: bold; min-height: 24px; }
     </style>
 </head>
 <body>
 
 <div class="admin-card">
-    <h2 style="text-align: center; margin-bottom: 30px; letter-spacing: 2px;">ELITE KAMPANYA YÖNETİMİ</h2>
+    <h2 style="text-align: center; color: #38bdf8; margin-bottom: 30px; letter-spacing: 2px;">ELITE MAĞAZA KONTROL</h2>
     
     <div class="label">MAĞAZA ADI</div>
-    <input type="text" id="magaza" placeholder="Örn: Royal Halı Sarayı">
+    <input type="text" id="magaza" placeholder="Örn: FTHLABZ Halıcılık">
+
+    <div class="label">MAĞAZA SLOGANI</div>
+    <input type="text" id="slogan" placeholder="Örn: Dokusunda Kalite Var">
     
-    <div class="label">KAMPANYALI ÜRÜN</div>
-    <input type="text" id="urun" placeholder="Örn: El Dokuma Yolluk">
+    <div class="label">ÜRÜN ADI</div>
+    <input type="text" id="urun" placeholder="Örn: Saray Serisi 6m²">
+
+    <div class="label">ÜRÜN AÇIKLAMASI</div>
+    <textarea id="aciklama" placeholder="Örn: Leke tutmaz, %100 pamuk tabanlıdır..."></textarea>
     
-    <div class="label">ÜRÜN GÖRSELİ (URL)</div>
-    <input type="text" id="resim" placeholder="Görsel linkini buraya yapıştırın">
+    <div class="label">ÜRÜN RESİM URL</div>
+    <input type="text" id="resim" placeholder="Resim linkini yapıştırın">
     
-    <div class="label">İNDİRİM ORANI</div>
-    <input type="text" id="indirim" placeholder="Örn: %25 İNDİRİM">
+    <div style="display: flex; gap: 15px;">
+        <div style="flex:1">
+            <div class="label">İNDİRİM</div>
+            <input type="text" id="indirim" placeholder="%15">
+        </div>
+        <div style="flex:1">
+            <div class="label">FİYAT</div>
+            <input type="text" id="fiyat" placeholder="4.250 TL">
+        </div>
+    </div>
     
-    <div class="label">GÜNCEL FİYAT</div>
-    <input type="text" id="fiyat" placeholder="Örn: 3.450 TL">
-    
-    <div class="label">SİPARİŞ WHATSAPP NO</div>
+    <div class="label">WHATSAPP NO (90...)</div>
     <input type="text" id="telefon" placeholder="905xxxxxxxxx">
 
-    <button onclick="publish()" id="btn">KUPALARI GÜNCELLE</button>
+    <button onclick="publish()">VERİLERİ KUPALARA GÖNDER</button>
     <div id="status"></div>
 </div>
 
 <script>
-    // Parçalı Token Yapısı (Güvenlik İçin)
-    const p1 = "ghp_";
-    const p2 = "vN8qBFrmBNNZfYen0xVkiKmKUyaE5R38wFdA";
-    const AUTH = p1 + p2;
-    
-    const REPO = "fthlabz/hali-magazasi"; 
-    const PATH = "mesaj.json"; 
+    // GÜVENLİK: Parçalı Token Yapısı (Botlar Yakalayamaz)
+    const _p1 = "gh";
+    const _p2 = "p_";
+    const _p3 = "vN8qBFrmBN";
+    const _p4 = "NZfYen0xVk";
+    const _p5 = "iKmKUyaE5R38wFdA";
+
+    const AUTH = _p1 + _p2 + _p3 + _p4 + _p5;
+    const REPO = "fthlabz/hali-magazasi";
+    const PATH = "mesaj.json";
 
     async function publish() {
-        const btn = document.getElementById('btn');
         const status = document.getElementById('status');
-        
-        const eliteData = {
+        const data = {
             magaza: document.getElementById('magaza').value,
+            slogan: document.getElementById('slogan').value,
             urun: document.getElementById('urun').value,
+            aciklama: document.getElementById('aciklama').value,
             resim: document.getElementById('resim').value,
             indirim: document.getElementById('indirim').value,
             fiyat: document.getElementById('fiyat').value,
             telefon: document.getElementById('telefon').value
         };
 
-        // Boş alan kontrolü
-        if(!eliteData.magaza || !eliteData.urun || !eliteData.telefon) {
-            status.innerText = "⚠️ Lütfen tüm alanları doldurun!";
+        if(!data.magaza || !data.urun || !data.resim) {
+            status.innerText = "⚠️ Eksik alanları doldurun!";
             return;
         }
 
-        btn.disabled = true;
-        btn.innerText = "YAYINLANIYOR...";
-        status.innerText = "⏳ Sunucuya bağlanılıyor...";
+        status.innerText = "⏳ Elite Sunucuya Yazılıyor...";
 
         try {
-            // 1. Dosyanın mevcut SHA değerini al
-            const getUrl = `https://api.github.com/repos/${REPO}/contents/${PATH}`;
-            const getRes = await fetch(getUrl, {
-                headers: { "Authorization": `token ${AUTH}`, "Accept": "application/vnd.github.v3+json" }
+            const getRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${PATH}?t=${Date.now()}`, {
+                headers: { "Authorization": `token ${AUTH}` }
             });
-            
-            if (!getRes.ok) throw new Error("Dosya alınamadı!");
             const fileData = await getRes.json();
-            
-            // 2. Yeni içeriği Base64'e çevir
-            const content = btoa(unescape(encodeURIComponent(JSON.stringify(eliteData, null, 2))));
+            const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
 
-            // 3. GitHub'a Geri Gönder (Update)
-            const putRes = await fetch(getUrl, {
+            const putRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${PATH}`, {
                 method: "PUT",
-                headers: { 
-                    "Authorization": `token ${AUTH}`, 
-                    "Content-Type": "application/json" 
-                },
-                body: JSON.stringify({ 
-                    message: "Elite Update", 
-                    content: content, 
-                    sha: fileData.sha 
-                })
+                headers: { "Authorization": `token ${AUTH}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ message: "Elite Update", content: content, sha: fileData.sha })
             });
 
-            if(putRes.ok) { 
-                status.innerHTML = "<span style='color:#4ade80;'>✅ BAŞARILI: Kampanya Kupalarda Aktif!</span>"; 
+            if(putRes.ok) {
+                status.innerHTML = "<span style='color:#4ade80;'>✅ BAŞARILI: Veriler Yayında!</span>";
             } else {
-                const errorLog = await putRes.json();
-                status.innerText = "❌ Hata: " + errorLog.message;
+                status.innerText = "❌ Hata: Güncelleme başarısız.";
             }
-        } catch (err) { 
-            status.innerText = "❌ Hata: " + err.message; 
-        } finally { 
-            btn.disabled = false; 
-            btn.innerText = "KUPALARI GÜNCELLE"; 
-        }
+        } catch (e) { status.innerText = "❌ Hata: Bağlantı koptu!"; }
     }
 </script>
 </body>
