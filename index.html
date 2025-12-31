@@ -1,1 +1,102 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTHLABZ | Elite Vitrin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #d4af37; --dark: #0f172a; }
+        body { background: var(--dark); color: white; font-family: 'Poppins', sans-serif; margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        /* Premium Giriş Ekranı */
+        #loader { position: fixed; inset: 0; background: var(--dark); z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.8s; }
+        .gold-logo { font-size: 60px; filter: drop-shadow(0 0 15px var(--gold)); animation: pulse 2s infinite; }
+        
+        /* Kampanya Kartı */
+        .campaign-card { width: 90%; max-width: 400px; text-align: center; opacity: 0; transform: translateY(40px); transition: 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .campaign-card.active { opacity: 1; transform: translateY(0); }
 
+        /* Halı Açılma Alanı */
+        .maskot-container { height: 260px; position: relative; margin: 20px 0; display: flex; align-items: flex-end; justify-content: center; }
+        .hali { 
+            width: 220px; height: 0; background-size: cover; background-position: center;
+            border-radius: 12px; transition: height 1.8s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8); position: relative; border: 2px solid var(--gold);
+        }
+        .hali.open { height: 250px; }
+        
+        /* İndirim Rozeti */
+        .badge { position: absolute; top: -15px; right: -15px; background: #ef4444; color: white; padding: 12px; border-radius: 50%; font-weight: bold; font-size: 0.9rem; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); z-index: 5; }
+
+        .wa-btn { 
+            background: #25d366; color: white; text-decoration: none; padding: 18px 40px; 
+            border-radius: 50px; display: inline-block; font-weight: bold; margin-top: 30px;
+            box-shadow: 0 10px 20px rgba(37, 211, 102, 0.3); transition: 0.4s; letter-spacing: 1px;
+        }
+        .wa-btn:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(37, 211, 102, 0.5); }
+        
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.15); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div class="gold-logo">👑</div>
+        <p style="letter-spacing: 4px; font-size: 0.8rem; color: var(--gold); margin-top: 25px; font-weight: 300;">FTHLABZ ELITE ECOSYSTEM</p>
+    </div>
+
+    <div class="campaign-card" id="card">
+        <h3 id="store-name" style="letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin: 0;">YÜKLENİYOR...</h3>
+        <p style="font-size: 0.7rem; color: #64748b; margin-top: 5px; letter-spacing: 2px;">ÖZEL KAMPANYA PANAROMASI</p>
+        
+        <div class="maskot-container">
+            <div class="hali" id="hali-img">
+                <div class="badge" id="discount-badge">-%0</div>
+            </div>
+        </div>
+
+        <h2 id="product-name" style="margin: 15px 0; font-weight: 600;">Ürün Detayı</h2>
+        <div style="font-size: 1.5rem; color: var(--gold); font-weight: bold; letter-spacing: 1px;" id="price">0.00 TL</div>
+
+        <a href="#" id="wa-link" class="wa-btn">WHATSAPP İLE SATIN AL</a>
+        
+        <p style="font-size: 0.6rem; color: #475569; margin-top: 40px; letter-spacing: 3px;">POWERED BY FTHLABZ ELITE</p>
+    </div>
+
+    <script>
+        async function loadEliteData() {
+            try {
+                const response = await fetch('mesaj.json?cache=' + Date.now());
+                const data = await response.json();
+                
+                document.getElementById('store-name').innerText = data.magaza;
+                document.getElementById('product-name').innerText = data.urun;
+                document.getElementById('price').innerText = data.fiyat;
+                document.getElementById('discount-badge').innerText = data.indirim;
+                document.getElementById('hali-img').style.backgroundImage = `url('${data.resim}')`;
+                
+                const waText = encodeURIComponent(`FTHLABZ Elite Panelden Merhaba! ${data.urun} kampanyasıyla ilgileniyorum.`);
+                document.getElementById('wa-link').href = `https://wa.me/${data.telefon}?text=${waText}`;
+
+                runEliteAnimations();
+            } catch (err) { console.error("Data error"); }
+        }
+
+        function runEliteAnimations() {
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => { document.getElementById('loader').style.display = 'none'; }, 800);
+                
+                // TİTREME EFEKTİ (Halı serilme hissi)
+                if ("vibrate" in navigator) { navigator.vibrate([150, 100, 150]); }
+                
+                document.getElementById('card').classList.add('active');
+                setTimeout(() => { document.getElementById('hali-img').classList.add('open'); }, 600);
+            }, 1800);
+        }
+
+        loadEliteData();
+    </script>
+</body>
+</html>
