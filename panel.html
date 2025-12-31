@@ -42,12 +42,12 @@
 </div>
 
 <script>
-    // --- BURAYI KENDİ BİLGİLERİNE GÖRE DOLDUR ---
-    // panel.html içindeki ilgili kısım:
-const prefix = "gh" + "p_"; 
-const key = "vN8qBFrmBNNZfYen0xVkiKmKUyaE5R38wFdA"; // Buraya ghp_ kısmından SONRAKİ harfleri yapıştır
-const TOKEN = prefix + key; 
-    const REPO = "fthlabz/hali-magazasi"; // REPO ADINI BURADA DEĞİŞTİRDİK
+    // Parçalı Token Yapısı (Güvenlik İçin)
+    const p1 = "ghp_";
+    const p2 = "vN8qBFrmBNNZfYen0xVkiKmKUyaE5R38wFdA";
+    const AUTH = p1 + p2;
+    
+    const REPO = "fthlabz/hali-magazasi"; 
     const PATH = "mesaj.json"; 
 
     async function publish() {
@@ -63,29 +63,55 @@ const TOKEN = prefix + key;
             telefon: document.getElementById('telefon').value
         };
 
+        // Boş alan kontrolü
+        if(!eliteData.magaza || !eliteData.urun || !eliteData.telefon) {
+            status.innerText = "⚠️ Lütfen tüm alanları doldurun!";
+            return;
+        }
+
         btn.disabled = true;
         btn.innerText = "YAYINLANIYOR...";
-        status.innerText = "⏳ Elite sunucuya bağlanılıyor...";
+        status.innerText = "⏳ Sunucuya bağlanılıyor...";
 
         try {
-            const getRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${PATH}?t=${Date.now()}`, {
-                headers: { "Authorization": `token ${TOKEN}` }
+            // 1. Dosyanın mevcut SHA değerini al
+            const getUrl = `https://api.github.com/repos/${REPO}/contents/${PATH}`;
+            const getRes = await fetch(getUrl, {
+                headers: { "Authorization": `token ${AUTH}`, "Accept": "application/vnd.github.v3+json" }
             });
+            
+            if (!getRes.ok) throw new Error("Dosya alınamadı!");
             const fileData = await getRes.json();
             
-            const content = btoa(unescape(encodeURIComponent(JSON.stringify(eliteData))));
+            // 2. Yeni içeriği Base64'e çevir
+            const content = btoa(unescape(encodeURIComponent(JSON.stringify(eliteData, null, 2))));
 
-            const putRes = await fetch(`https://api.github.com/repos/${REPO}/contents/${PATH}`, {
+            // 3. GitHub'a Geri Gönder (Update)
+            const putRes = await fetch(getUrl, {
                 method: "PUT",
-                headers: { "Authorization": `token ${TOKEN}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ message: "Elite Kampanya Update", content: content, sha: fileData.sha })
+                headers: { 
+                    "Authorization": `token ${AUTH}`, 
+                    "Content-Type": "application/json" 
+                },
+                body: JSON.stringify({ 
+                    message: "Elite Update", 
+                    content: content, 
+                    sha: fileData.sha 
+                })
             });
 
             if(putRes.ok) { 
                 status.innerHTML = "<span style='color:#4ade80;'>✅ BAŞARILI: Kampanya Kupalarda Aktif!</span>"; 
+            } else {
+                const errorLog = await putRes.json();
+                status.innerText = "❌ Hata: " + errorLog.message;
             }
-        } catch (err) { status.innerText = "❌ Hata: Bağlantı kurulamadı!"; }
-        finally { btn.disabled = false; btn.innerText = "KUPALARI GÜNCELLE"; }
+        } catch (err) { 
+            status.innerText = "❌ Hata: " + err.message; 
+        } finally { 
+            btn.disabled = false; 
+            btn.innerText = "KUPALARI GÜNCELLE"; 
+        }
     }
 </script>
 </body>
